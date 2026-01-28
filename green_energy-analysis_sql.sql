@@ -1,87 +1,69 @@
-select *
-from cleaned_energy_dataser ced ;
+-- 1. Highest Capacity by Energy Type
+-- Use raw SUM in ORDER BY to ensure numerical sorting
+SELECT 
+    Type_of_Renewable_Energy, 
+    FORMAT(SUM(Installed_Capacity_MW), 2) AS total_capacity_mw
+FROM cleaned_energy_dataser
+GROUP BY Type_of_Renewable_Energy 
+ORDER BY SUM(Installed_Capacity_MW) DESC;
 
--- which type of renewable energy has the highest  capacity
+-- 2. Jobs Created by Funding Source
+SELECT 
+    Funding_Sources, 
+    SUM(Jobs_Created) AS total_jobs
+FROM cleaned_energy_dataser
+GROUP BY Funding_Sources 
+ORDER BY total_jobs DESC;
 
-select Type_of_Renewable_Energy , format(sum(Installed_Capacity_MW), 2)as total_capacity
-from cleaned_energy_dataser ced 
-group by Type_of_Renewable_Energy 
-order by total_capacity desc;
+-- 3. Highest Energy Production
+SELECT 
+    Type_of_Renewable_Energy, 
+    FORMAT(SUM(Energy_Production_MWh), 2) AS total_energy_production_mwh
+FROM cleaned_energy_dataser
+GROUP BY Type_of_Renewable_Energy 
+ORDER BY SUM(Energy_Production_MWh) DESC;
 
--- which founding sources have created the most number of jobs
+-- 4. Energy Consumption Ratio
+-- Formula: (Total Consumption / Total Production)
+-- Added a NULLIF to prevent division by zero errors
+SELECT 
+    Type_of_Renewable_Energy, 
+    FORMAT(SUM(Energy_Consumption_MWh) / NULLIF(SUM(Energy_Production_MWh), 0), 4) AS consumption_efficiency_ratio
+FROM cleaned_energy_dataser
+GROUP BY Type_of_Renewable_Energy 
+ORDER BY consumption_efficiency_ratio DESC;
 
-select Funding_Sources, sum(Jobs_Created) as total_jobs
-from cleaned_energy_dataser ced 
-group by Funding_Sources 
-order by total_jobs desc;
+-- 5. Funding Distribution by Projects Count
+SELECT 
+    Funding_Sources, 
+    COUNT(*) AS total_projects_installed
+FROM cleaned_energy_dataser
+GROUP BY Funding_Sources 
+ORDER BY total_projects_installed DESC;
 
--- which energy type produces highest energy
+-- 6. Investment and Incentives Analysis
+-- Changed ORDER BY to DESC for Investment to see highest first
+SELECT 
+    Type_of_Renewable_Energy, 
+    FORMAT(SUM(Initial_Investment_USD), 2) AS total_investment, 
+    FORMAT(SUM(Financial_Incentives_USD), 2) AS total_incentives
+FROM cleaned_energy_dataser
+GROUP BY Type_of_Renewable_Energy 
+ORDER BY SUM(Initial_Investment_USD) DESC;
 
-select Type_of_Renewable_Energy , format(sum(Energy_Production_MWh), 2) as total_energy_production
-from cleaned_energy_dataser ced 
-group by Type_of_Renewable_Energy 
-order by total_energy_production desc;
+-- 7. Environmental Impact (GHG & Air Pollution)
+SELECT 
+    Type_of_Renewable_Energy, 
+    FORMAT(AVG(GHG_Emission_Reduction_tCO2e), 2) AS avg_ghg_reduction, 
+    FORMAT(AVG(Air_Pollution_Reduction_Index), 2) AS avg_air_pollution_index
+FROM cleaned_energy_dataser
+GROUP BY Type_of_Renewable_Energy 
+ORDER BY AVG(GHG_Emission_Reduction_tCO2e) DESC;
 
--- which type  of energy have highest consumption_ratio
-
-select Type_of_Renewable_Energy , Format(sum(Energy_Production_MWh) / sum(Energy_Consumption_MWh), 2) as consumption_ratio
-from cleaned_energy_dataser
-group by Type_of_Renewable_Energy 
-order by consumption_ratio desc;
-
--- which founding sources have more renewable energy installed
-
-select Funding_Sources ,count(Type_of_Renewable_Energy) as total_Energy_installed
-from cleaned_energy_dataser ced 
-group by Funding_Sources 
-order by total_Energy_installed desc;
-
--- Distribution of founding sources and type of nenewable energy vs number of installed
-
-select Funding_sources, Type_of_Renewable_Energy ,count(Type_of_Renewable_Energy) as total_Energy_installed
-from cleaned_energy_dataser 
-group by Type_of_Renewable_Energy, 
-    Funding_Sources
-order by total_Energy_installed desc;
-
-
--- which type of energy have highest investment and incentives
-
-select Type_of_Renewable_Energy, sum(Initial_Investment_USD) as total_investment , sum(Financial_Incentives_USD) as total_incentives
-from cleaned_energy_dataser ced 
-group by Type_of_Renewable_Energy 
-order by total_investment, total_incentives desc;
-
--- distribution of average GHG emissin and air pollution index
-
-select Type_of_Renewable_Energy , format(avg(GHG_Emission_Reduction_tCO2e), 2) as average_GHG_Emission, format(avg(Air_Pollution_Reduction_Index), 2) as air_pollution_index
-from cleaned_energy_dataser ced 
-group by Type_of_Renewable_Energy 
-order by average_GHG_Emission, air_pollution_index desc;
-
--- types of energy and its efficiency
-
-select Type_of_Renewable_Energy, format(avg(Storage_Efficiency_Percentage), 2)as average_efficiency 
-from cleaned_energy_dataser ced 
-group by Type_of_Renewable_Energy 
-order by average_efficiency desc;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+-- 8. Storage Efficiency
+SELECT 
+    Type_of_Renewable_Energy, 
+    FORMAT(AVG(Storage_Efficiency_Percentage), 2) AS avg_storage_efficiency_pct
+FROM cleaned_energy_dataser
+GROUP BY Type_of_Renewable_Energy 
+ORDER BY AVG(Storage_Efficiency_Percentage) DESC;
